@@ -9,6 +9,7 @@ from botocore.exceptions import NoCredentialsError
 from pynput import keyboard, mouse
 from threading import Thread
 from datetime import datetime
+import psutil
 
 
 # Import platform-specific modules
@@ -22,6 +23,13 @@ elif platform.system() == 'Darwin':
 elif platform.system() == 'Linux':
     import subprocess
     from PIL import ImageGrab
+
+def check_battery():
+    battery = psutil.sensors_battery()
+    if battery is not None and not battery.power_plugged and battery.percent < 20:
+        print("Low battery detected. Suspending activity tracking...")
+        return True
+    return False
 
 # Dictionary to store usage data
 activity_log = {}
@@ -78,6 +86,10 @@ def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_ke
 def log_activity():
     global key_presses, mouse_clicks
     while True:
+        if check_battery():
+            time.sleep(60)  # Wait for a minute before checking again
+            continue
+            
         current_time = datetime.now()
         active_window = get_active_window()
 
