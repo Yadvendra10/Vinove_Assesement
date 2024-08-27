@@ -1,7 +1,7 @@
 import time
 import platform
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import io
 import boto3
@@ -24,13 +24,6 @@ elif platform.system() == 'Linux':
     import subprocess
     from PIL import ImageGrab
 
-def check_battery():
-    battery = psutil.sensors_battery()
-    if battery is not None and not battery.power_plugged and battery.percent < 20:
-        print("Low battery detected. Suspending activity tracking...")
-        return True
-    return False
-
 # Dictionary to store usage data
 activity_log = {}
 
@@ -39,11 +32,27 @@ key_presses = 0
 mouse_clicks = 0
 
 # AWS S3 configuration
-#AWS_ACCESS_KEY = 'AKIA2RSH2FF23GML6TMA'
-#AWS_SECRET_KEY = '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'
-#BUCKET_NAME = 'myvinoveproject'
-#S3_REGION = 'us-east-1'
-#UPLOAD_PATH = 'screenshots/'
+# AWS_ACCESS_KEY = 'AKIA2RSH2FF23GML6TMA'
+# AWS_SECRET_KEY = 'GPL+6ucD3qpRWJPKAyYjFD1nw0OrwYYoTtgKlUnL'
+# BUCKET_NAME = 'myvinoveproject'
+# S3_REGION = 'us-east-1'
+# UPLOAD_PATH = 'screenshots/'
+
+# Sample user credentials (for demonstration purposes)
+USER_CREDENTIALS = {
+    'admin': 'password123',
+}
+
+# Define global variables for GUI components
+screenshot_label = None
+tree = None
+
+def check_battery():
+    battery = psutil.sensors_battery()
+    if battery is not None and not battery.power_plugged and battery.percent < 20:
+        print("Low battery detected. Suspending activity tracking...")
+        return True
+    return False
 
 def get_active_window():
     if platform.system() == 'Windows':
@@ -68,20 +77,20 @@ def take_screenshot():
         img = ImageGrab.grab((x, y, x+w, y+h))
     return img
 
-def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_key, region):
-    try:
-        session = boto3.Session(
-            aws_access_key_id=aws_access_key,
-            aws_secret_access_key=aws_secret_key,
-            region_name=region
-        )
-        s3 = session.client('s3')
-        s3.upload_fileobj(file_stream, bucket_name, s3_key, ExtraArgs={'ContentType': 'image/png'})
-        print(f"Uploaded to S3 at {s3_key}")
-    except NoCredentialsError:
-        print("Credentials not available.")
-    except Exception as e:
-        print(f"Error occurred: {e}")
+# def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_key, region):
+#     try:
+#         session = boto3.Session(
+#             aws_access_key_id=aws_access_key,
+#             aws_secret_access_key=aws_secret_key,
+#             region_name=region
+#         )
+#         s3 = session.client('s3')
+#         s3.upload_fileobj(file_stream, bucket_name, s3_key, ExtraArgs={'ContentType': 'image/png'})
+#         print(f"Uploaded to S3 at {s3_key}")
+#     except NoCredentialsError:
+#         print("Credentials not available.")
+#     except Exception as e:
+#         print(f"Error occurred: {e}")
 
 def log_activity():
     global key_presses, mouse_clicks
@@ -89,7 +98,7 @@ def log_activity():
         if check_battery():
             time.sleep(60)  # Wait for a minute before checking again
             continue
-            
+
         current_time = datetime.now()
         active_window = get_active_window()
 
@@ -116,14 +125,16 @@ def log_activity():
         buffered = io.BytesIO()
         screenshot.save(buffered, format="PNG")
         buffered.seek(0)
-        s3_key = f"{UPLOAD_PATH}screenshot_{current_time.strftime('%Y%m%d_%H%M%S')}.png"
-        upload_to_s3(buffered, BUCKET_NAME, s3_key, AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_REGION)
+        # s3_key = f"{UPLOAD_PATH}screenshot_{current_time.strftime('%Y%m%d_%H%M%S')}.png"
+        # upload_to_s3(buffered, BUCKET_NAME, s3_key, AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_REGION)
 
         # Display screenshot     
-        display_screenshot(screenshot)
+        if screenshot_label:  # Ensure screenshot_label is initialized
+            display_screenshot(screenshot)
 
         # Update GUI
-        update_gui()
+        if tree:  # Ensure tree is initialized
+            update_gui()
 
         time.sleep(5)  # Adjust the sleep time as needed
 
@@ -151,14 +162,42 @@ def on_click(x, y, button, pressed):
     if pressed:
         mouse_clicks += 1
 
-def create_gui():
+def show_login_window(root):
+    # Destroy any existing windows (in case of logout)
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    # Login frame
+    login_frame = tk.Frame(root)
+    login_frame.pack(pady=50)
+
+    tk.Label(login_frame, text="Username").grid(row=0, column=0, padx=10, pady=10)
+    tk.Label(login_frame, text="Password").grid(row=1, column=0, padx=10, pady=10)
+
+    username_entry = tk.Entry(login_frame)
+    password_entry = tk.Entry(login_frame, show="*")
+
+    username_entry.grid(row=0, column=1, padx=10, pady=10)
+    password_entry.grid(row=1, column=1, padx=10, pady=10)
+
+    def validate_login():
+        username = username_entry.get()
+        password = password_entry.get()
+        if USER_CREDENTIALS.get(username) == password:
+            show_main_window(root)
+        else:
+            messagebox.showerror("Login Failed", "Invalid username or password")
+
+    login_button = tk.Button(login_frame, text="Login", command=validate_login)
+    login_button.grid(row=2, columnspan=2, pady=20)
+
+def show_main_window(root):
+    # Destroy login widgets
+    for widget in root.winfo_children():
+        widget.destroy()
+
     global tree, screenshot_label
 
-    # Initialize main window
-    root = tk.Tk()
-    root.title("User Activity Monitor")
-    root.geometry("1000x600")
-    
     # Define columns
     columns = ("Application", "Start Time", "Usage Time (s)", "Key Presses", "Mouse Clicks")
     
@@ -176,17 +215,28 @@ def create_gui():
     screenshot_label = tk.Label(root)
     screenshot_label.pack()
 
+    logout_button = tk.Button(root, text="Logout", command=lambda: show_login_window(root))
+    logout_button.pack(pady=10)
+
+def create_gui():
+    # Initialize main window
+    root = tk.Tk()
+    root.title("User Activity Monitor")
+    root.geometry("1000x600")
+
+    show_login_window(root)  # Start with the login window
+
     return root
 
 if __name__ == "__main__":
     # Create and start the GUI
     root = create_gui()
-    
-    # Start logging thread
-    logging_thread = Thread(target=log_activity)
-    logging_thread.start()  # Avoid daemon=True to prevent shutdown issues
 
-    # Start listening for keyboard and mouse events
+    # Start logging thread after successful login
+    logging_thread = Thread(target=log_activity)
+    logging_thread.start()
+
+    # Start listening for keyboard and mouse
     keyboard_listener = keyboard.Listener(on_press=on_press)
     mouse_listener = mouse.Listener(on_click=on_click)
     keyboard_listener.start()
