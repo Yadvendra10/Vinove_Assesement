@@ -11,7 +11,6 @@ from threading import Thread
 from datetime import datetime
 import psutil
 
-
 # Import platform-specific modules
 if platform.system() == 'Windows':
     import win32gui
@@ -185,8 +184,10 @@ def show_login_window(root):
         password = password_entry.get()
         if USER_CREDENTIALS.get(username) == password:
             show_main_window(root)
+            print("Genuine Person Detected...")
         else:
             messagebox.showerror("Login Failed", "Invalid username or password")
+            print("User Invalid...")
 
     login_button = tk.Button(login_frame, text="Login", command=validate_login)
     login_button.grid(row=2, columnspan=2, pady=20)
