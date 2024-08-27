@@ -148,7 +148,7 @@ def update_gui():
 
 def display_screenshot(img):
     global screenshot_label
-    img = ImageTk.PhotoImage(img.resize((300, 200)))
+    img = ImageTk.PhotoImage(img.resize((400, 250)))  # Slightly larger size
     screenshot_label.config(image=img)
     screenshot_label.image = img
 
@@ -166,15 +166,16 @@ def show_login_window(root):
     for widget in root.winfo_children():
         widget.destroy()
 
-    # Login frame
-    login_frame = tk.Frame(root)
+    # Login frame with modern style and border
+    login_frame = tk.Frame(root, padx=20, pady=20, bg="#f7f7f7", 
+                           highlightbackground="#080808", highlightcolor="#080808", highlightthickness=2)
     login_frame.pack(pady=50)
 
-    tk.Label(login_frame, text="Username").grid(row=0, column=0, padx=10, pady=10)
-    tk.Label(login_frame, text="Password").grid(row=1, column=0, padx=10, pady=10)
+    tk.Label(login_frame, text="Username", font=("Arial", 12), bg="#f7f7f7").grid(row=0, column=0, padx=10, pady=10)
+    tk.Label(login_frame, text="Password", font=("Arial", 12), bg="#f7f7f7").grid(row=1, column=0, padx=10, pady=10)
 
-    username_entry = tk.Entry(login_frame)
-    password_entry = tk.Entry(login_frame, show="*")
+    username_entry = tk.Entry(login_frame, font=("Arial", 12))
+    password_entry = tk.Entry(login_frame, show="*", font=("Arial", 12))
 
     username_entry.grid(row=0, column=1, padx=10, pady=10)
     password_entry.grid(row=1, column=1, padx=10, pady=10)
@@ -189,8 +190,9 @@ def show_login_window(root):
             messagebox.showerror("Login Failed", "Invalid username or password")
             print("User Invalid...")
 
-    login_button = tk.Button(login_frame, text="Login", command=validate_login)
+    login_button = tk.Button(login_frame, text="Login", command=validate_login, bg="#000066", fg="white", font=("Arial", 12))
     login_button.grid(row=2, columnspan=2, pady=20)
+
 
 def show_main_window(root):
     # Destroy login widgets
@@ -199,31 +201,43 @@ def show_main_window(root):
 
     global tree, screenshot_label
 
+    # Create main frame
+    main_frame = tk.Frame(root, padx=10, pady=10, bg="#ffffff")
+    main_frame.pack(fill="both", expand=True)
+
     # Define columns
     columns = ("Application", "Start Time", "Usage Time (s)", "Key Presses", "Mouse Clicks")
     
-    # Create treeview
-    tree = ttk.Treeview(root, columns=columns, show="headings")
+    # Create treeview with style
+    style = ttk.Style()
+    style.configure("Treeview.Heading", font=("Arial", 12))
+    style.configure("Treeview", font=("Arial", 10), rowheight=25)
+    
+    tree = ttk.Treeview(main_frame, columns=columns, show="headings")
     tree.heading("Application", text="Application")
     tree.heading("Start Time", text="Start Time")
     tree.heading("Usage Time (s)", text="Usage Time (s)")
     tree.heading("Key Presses", text="Key Presses")
     tree.heading("Mouse Clicks", text="Mouse Clicks")
     
-    tree.pack(fill="both", expand=True)
+    tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-    # Create label for screenshot
-    screenshot_label = tk.Label(root)
+    # Create label for screenshot with border
+    screenshot_frame = tk.Frame(main_frame, bg="#dddddd", padx=5, pady=5)
+    screenshot_frame.pack(pady=10)
+
+    screenshot_label = tk.Label(screenshot_frame, bg="#ffffff")
     screenshot_label.pack()
 
-    logout_button = tk.Button(root, text="Logout", command=lambda: show_login_window(root))
+    logout_button = tk.Button(main_frame, text="Logout", command=lambda: show_login_window(root), bg="#f44336", fg="white", font=("Arial", 12))
     logout_button.pack(pady=10)
 
 def create_gui():
     # Initialize main window
     root = tk.Tk()
     root.title("User Activity Monitor")
-    root.geometry("1000x600")
+    root.geometry("1100x700")
+    root.configure(bg="#f0f0f0")  # Light gray background
 
     show_login_window(root)  # Start with the login window
 
