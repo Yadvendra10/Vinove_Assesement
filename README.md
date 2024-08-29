@@ -101,8 +101,8 @@ Python 3.x
 
 - **Cross-Platform Issues:**
   - Ensure the correct platform-specific libraries are installed for Windows, macOS, or Linux.
- 
-    # Write to README.md
+
+## Write to README.md
 with open("README.md", "w") as file:
     file.write(readme_content)
 
