@@ -34,6 +34,13 @@ activity_log = {}
 key_presses = 0
 mouse_clicks = 0
 
+# AWS S3 configuration
+AWS_ACCESS_KEY = 'AKIA2RSH2FF23GML6TMA'
+AWS_SECRET_KEY = 'GPL+6ucD3qpRWJPKAyYjFD1nw0OrwYYoTtgKlUnL'
+BUCKET_NAME = 'myvinoveproject'
+S3_REGION = 'us-east-1'
+UPLOAD_PATH = 'screenshots/'
+
 # Sample user credentials (for demonstration purposes)
 USER_CREDENTIALS = {
     'admin': 'password123',
@@ -59,8 +66,8 @@ def checkInternetUrllib(url='http://google.com', timeout=3):
 def send_otp(to_email, otp):
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
-    sender_email = "yash.10102003@gmail.com"
-    sender_password = "voki tyoh vghi nmkj"
+    sender_email = "abhiibaghel1011@gmail.com"
+    sender_password = "qeqz hxlx juxy tzqk"
 
     msg = MIMEText(f"Your OTP is: {otp}")
     msg['Subject'] = "Your OTP Code"
@@ -120,6 +127,22 @@ def take_screenshot():
         img = ImageGrab.grab((x, y, x+w, y+h))
     return img
 
+
+def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_key, region):
+    try:
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key,
+            aws_secret_access_key=aws_secret_key,
+            region_name=region
+        )
+        s3 = session.client('s3')
+        s3.upload_fileobj(file_stream, bucket_name, s3_key, ExtraArgs={'ContentType': 'image/png'})
+        print(f"Uploaded to S3 at {s3_key}")
+    except NoCredentialsError:
+        print("Credentials not available.")
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
 def log_activity():
     global key_presses, mouse_clicks
     while True:
@@ -153,8 +176,8 @@ def log_activity():
         buffered = io.BytesIO()
         screenshot.save(buffered, format="PNG")
         buffered.seek(0)
-        # s3_key = f"{UPLOAD_PATH}screenshot_{current_time.strftime('%Y%m%d_%H%M%S')}.png"
-        # upload_to_s3(buffered, BUCKET_NAME, s3_key, AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_REGION)
+        s3_key = f"{UPLOAD_PATH}screenshot_{current_time.strftime('%Y%m%d_%H%M%S')}.png"
+        upload_to_s3(buffered, BUCKET_NAME, s3_key, AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_REGION)
 
         # Display screenshot     
         if screenshot_label:  # Ensure screenshot_label is initialized
