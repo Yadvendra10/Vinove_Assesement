@@ -1,3 +1,6 @@
+# Group- 5
+
+
 # User Activity Monitor Application
 
 ## Overview
@@ -102,10 +105,6 @@ Python 3.x
 - **Cross-Platform Issues:**
   - Ensure the correct platform-specific libraries are installed for Windows, macOS, or Linux.
 
-## Write to README.md
-with open("README.md", "w") as file:
-    file.write(readme_content)
 
-print("README.md file has been created.")
 
 
