@@ -189,6 +189,7 @@ def log_activity():
 
         time.sleep(5)  # Adjust the sleep time as needed
 
+# Function Used for Update Gui
 def update_gui():
     global tree
     for widget in tree.get_children():
