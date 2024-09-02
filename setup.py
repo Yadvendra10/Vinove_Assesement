@@ -4,5 +4,5 @@ setup(
     name = "User Activity Monitor",
     version = "1.0",
     description = "A tool to monitor user activity in real-time",
-    executables = [Executable("user_activity_monitor.py", base="Win32GUI")]
+    executables = [Executable("app.py", base="Win32GUI")]
 )
