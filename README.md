@@ -105,6 +105,62 @@ Python 3.x
 - **Cross-Platform Issues:**
   - Ensure the correct platform-specific libraries are installed for Windows, macOS, or Linux.
 
+## Testing
+
+### Unit Tests
+
+The application includes a set of unit tests to verify the correctness of key functionalities, such as error handling, listener start-ups, and the integration of external services like AWS S3 and email OTP.
+
+### Running Tests
+
+To run the unit tests, follow these steps:
+
+1. **Navigate to the project directory:**
+
+    ```sh
+    cd user-activity-monitor
+    ```
+
+2. **Execute the tests using `unittest`:**
+
+    ```sh
+    python -m unittest discover -s tests
+    ```
+
+    This command will automatically discover and run all test cases defined in the `tests` directory.
+
+### Test Coverage
+
+The tests cover the following functionalities:
+
+1. **Internet Connectivity Check**
+   - Verify the function returns the correct status based on internet connectivity availability and handles exceptions.
+
+2. **OTP Generation and Validation**
+   - Ensure that OTP is generated, stored, sent to the correct email, and validated correctly, including handling incorrect entries.
+
+3. **Battery Check**
+   - Verify that the system correctly identifies low battery levels, both when the battery is below and above 20%, and handles cases without battery sensors.
+
+4. **Active Window Retrieval**
+   - Ensure the function correctly identifies the active window across Windows, macOS, and Linux, and handles cases where no active window is detected.
+
+5. **Screenshot Capture**
+   - Verify that the system captures screenshots correctly across different platforms and handles capture failures.
+
+6. **User Activity Logging**
+   - Ensure that key presses and mouse clicks are logged, the active window’s usage time is updated, and the log behaves correctly when the battery is low.
+
+7. **GUI Functionality**
+   - Verify that the login screen, OTP input, and main window display correctly and that the logout button functions properly.
+
+8. **Keyboard and Mouse Event Listening**
+   - Ensure that keyboard and mouse event listeners start upon login and continue functioning while the application runs.
+
+9. **Error Handling**
+   - Verify that the application handles failures gracefully, including screenshot failures, AWS S3 upload issues, and login errors.
+
+
 
 
 
