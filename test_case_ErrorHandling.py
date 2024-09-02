@@ -1,3 +1,10 @@
+# Error Handling
+# Test Case 9.1: Ensure that the application handles exceptions gracefully when taking screenshots fails.
+# Test Case 9.2: Verify that the application correctly handles AWS S3 upload failures.
+# Test Case 9.3: Ensure the application handles login failures appropriately.
+# Test Case 9.4: Test the behavior when the internet connection is lost during OTP generation.
+
+
 import unittest
 from unittest.mock import patch, MagicMock
 from app import take_screenshot, upload_to_s3, validate_login
