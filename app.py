@@ -219,6 +219,11 @@ def show_login_window(root):
     for widget in root.winfo_children():
         widget.destroy()
 
+    # Title Frame
+    title_frame = tk.Frame(root, bg="#000080")
+    title_frame.pack(fill="x")
+    tk.Label(title_frame, text="Vinove", font=("Arial", 16, "bold"), bg="#000080", fg="white", pady=10).pack()
+
     # Login frame with modern style and border
     login_frame = tk.Frame(root, padx=20, pady=20, bg="#f7f7f7", 
                            highlightbackground="#080808", highlightcolor="#080808", highlightthickness=2)
@@ -252,6 +257,11 @@ def show_otp_window(root, username):
     for widget in root.winfo_children():
         widget.destroy()
 
+    # Title Frame
+    title_frame = tk.Frame(root, bg="#000080")
+    title_frame.pack(fill="x")
+    tk.Label(title_frame, text="Vinove", font=("Arial", 16, "bold"), bg="#000080", fg="white", pady=10).pack()
+
     # OTP frame
     otp_frame = tk.Frame(root, padx=20, pady=20, bg="#f7f7f7", 
                          highlightbackground="#080808", highlightcolor="#080808", highlightthickness=2)
@@ -278,6 +288,11 @@ def show_main_window(root):
     # Destroy login widgets
     for widget in root.winfo_children():
         widget.destroy()
+
+    # Title Frame
+    title_frame = tk.Frame(root, bg="#000080")
+    title_frame.pack(fill="x")
+    tk.Label(title_frame, text="Vinove", font=("Arial", 16, "bold"), bg="#000080", fg="white", pady=10).pack()
 
     global tree, screenshot_label
 
