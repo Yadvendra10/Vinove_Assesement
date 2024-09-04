@@ -101,6 +101,7 @@ def check_battery():
     battery = psutil.sensors_battery()
     if battery is not None and not battery.power_plugged and battery.percent < 20:
         print("Low battery detected. Suspending activity tracking...")
+        messagebox.showwarning("Battery Low", "Battery level is below 20%. Activity tracking is suspended.")
         return True
     return False
 
