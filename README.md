@@ -10,7 +10,7 @@ User behavior Monitor is a desktop software that monitors user behavior such as 
 - **Report File:** https://docs.google.com/document/d/1Q8tHfXOVBB-TluB7rfQ3AG5mPcixWENCvtS-m60tFQ4/edit?usp=sharing
 
 ## Application Zip File
-- **Zip File:** https://drive.google.com/file/d/16XAe4R9V0_ht8aBtKBSv3m--4HA61AIc/view?usp=sharing
+- **Zip File:** https://drive.google.com/file/d/16XAe4R9V0_ht8aBtKBSv3m--4HA61AIc/view
 
 ## Features
 - **Cross-Platform Support:** Works with Windows, macOS, and Linux.
