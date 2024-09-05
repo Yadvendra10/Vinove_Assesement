@@ -15,8 +15,6 @@ import smtplib
 from email.mime.text import MIMEText
 import urllib.request  # Added for checking internet connectivity
 
-# Global flags
-tree_initialized = False
 
 # Platform-specific imports
 if platform.system() == 'Windows':
