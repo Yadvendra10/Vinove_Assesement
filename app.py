@@ -35,11 +35,11 @@ key_presses = 0
 mouse_clicks = 0
 
 # AWS S3 configuration
-AWS_ACCESS_KEY = 'AKIA2RSH2FF23GML6TMA'
-AWS_SECRET_KEY = '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'
-BUCKET_NAME = 'myvinoveproject'
-S3_REGION = 'us-east-1'
-UPLOAD_PATH = 'screenshots/'
+# AWS_ACCESS_KEY = 'AKIA2RSH2FF23GML6TMA'
+# AWS_SECRET_KEY = 'GPL+6ucD3qpRWJPKAyYjFD1nw0OrwYYoTtgKlUnL'
+# BUCKET_NAME = 'myvinoveproject'
+# S3_REGION = 'us-east-1'
+# UPLOAD_PATH = 'screenshots/'
 
 # Sample user credentials (for demonstration purposes)
 USER_CREDENTIALS = {
@@ -106,6 +106,7 @@ def check_battery():
         return True
     return False
 
+
 def get_active_window():
     if platform.system() == 'Windows':
         return win32gui.GetWindowText(win32gui.GetForegroundWindow())
@@ -130,20 +131,20 @@ def take_screenshot():
     return img
 
 
-def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_key, region):
-    try:
-        session = boto3.Session(
-            aws_access_key_id=aws_access_key,
-            aws_secret_access_key=aws_secret_key,
-            region_name=region
-        )
-        s3 = session.client('s3')
-        s3.upload_fileobj(file_stream, bucket_name, s3_key, ExtraArgs={'ContentType': 'image/png'})
-        print(f"Uploaded to S3 at {s3_key}")
-    except NoCredentialsError:
-        print("Credentials not available.")
-    except Exception as e:
-        print(f"Error occurred: {e}")
+# def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_key, region):
+#     try:
+#         session = boto3.Session(
+#             aws_access_key_id=aws_access_key,
+#             aws_secret_access_key=aws_secret_key,
+#             region_name=region
+#         )
+#         s3 = session.client('s3')
+#         s3.upload_fileobj(file_stream, bucket_name, s3_key, ExtraArgs={'ContentType': 'image/png'})
+#         print(f"Uploaded to S3 at {s3_key}")
+#     except NoCredentialsError:
+#         print("Credentials not available.")
+#     except Exception as e:
+#         print(f"Error occurred: {e}")
 
 def log_activity():
     global key_presses, mouse_clicks
@@ -173,25 +174,23 @@ def log_activity():
         key_presses = 0
         mouse_clicks = 0
 
-        # Take and upload screenshot
+       # Take and upload screenshot
         screenshot = take_screenshot()
-        buffered = io.BytesIO()
-        screenshot.save(buffered, format="PNG")
-        buffered.seek(0)
-        s3_key = f"{UPLOAD_PATH}screenshot_{current_time.strftime('%Y%m%d_%H%M%S')}.png"
-        upload_to_s3(buffered, BUCKET_NAME, s3_key, AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_REGION)
 
-        # Display screenshot     
-        if screenshot_label:  # Ensure screenshot_label is initialized
-            display_screenshot(screenshot)
+        # Schedule GUI updates in the main thread
+        root.after(0, display_screenshot, screenshot)
 
-        # Update GUI
-        if tree:  # Ensure tree is initialized
-            update_gui()
+        # Update GUI tree
+        root.after(0, update_gui)
 
         time.sleep(5)  # Adjust the sleep time as needed
 
-# Function Used for Update Gui
+def display_screenshot(img):
+    global screenshot_label
+    img = ImageTk.PhotoImage(img.resize((400, 250)))  # Resize the image
+    screenshot_label.config(image=img)
+    screenshot_label.image = img  # Keep a reference to the image to prevent garbage collection
+
 def update_gui():
     global tree
     for widget in tree.get_children():
@@ -291,12 +290,12 @@ def show_main_window(root):
     for widget in root.winfo_children():
         widget.destroy()
 
+    global tree, screenshot_label
+
     # Title Frame
     title_frame = tk.Frame(root, bg="#000080")
     title_frame.pack(fill="x")
     tk.Label(title_frame, text="Vinove", font=("Arial", 16, "bold"), bg="#000080", fg="white", pady=10).pack()
-
-    global tree, screenshot_label
 
     # Create main frame
     main_frame = tk.Frame(root, padx=10, pady=10, bg="#ffffff")
@@ -345,7 +344,7 @@ if __name__ == "__main__":
     root = create_gui()
 
     # Start logging thread after successful login
-    logging_thread = Thread(target=log_activity)
+    logging_thread = Thread(target=log_activity,daemon=True)
     logging_thread.start()
 
     # Start listening for keyboard and mouse
