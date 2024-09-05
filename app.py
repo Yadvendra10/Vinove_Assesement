@@ -15,6 +15,9 @@ import smtplib
 from email.mime.text import MIMEText
 import urllib.request  # Added for checking internet connectivity
 
+# Global flags
+tree_initialized = False
+
 # Platform-specific imports
 if platform.system() == 'Windows':
     import win32gui
@@ -35,11 +38,11 @@ key_presses = 0
 mouse_clicks = 0
 
 # AWS S3 configuration
-# AWS_ACCESS_KEY = 'AKIA2RSH2FF23GML6TMA'
-# AWS_SECRET_KEY = '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'
-# BUCKET_NAME = 'myvinoveproject'
-# S3_REGION = 'us-east-1'
-# UPLOAD_PATH = 'screenshots/'
+AWS_ACCESS_KEY = 'AKIA2RSH2FF23GML6TMA'
+AWS_SECRET_KEY = 'GPL+6ucD3qpRWJPKAyYjFD1nw0OrwYYoTtgKlUnL'
+BUCKET_NAME = 'myvinoveproject'
+S3_REGION = 'us-east-1'
+UPLOAD_PATH = 'screenshots/'
 
 # Sample user credentials (for demonstration purposes)
 USER_CREDENTIALS = {
@@ -131,20 +134,20 @@ def take_screenshot():
     return img
 
 
-# def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_key, region):
-#     try:
-#         session = boto3.Session(
-#             aws_access_key_id=aws_access_key,
-#             aws_secret_access_key=aws_secret_key,
-#             region_name=region
-#         )
-#         s3 = session.client('s3')
-#         s3.upload_fileobj(file_stream, bucket_name, s3_key, ExtraArgs={'ContentType': 'image/png'})
-#         print(f"Uploaded to S3 at {s3_key}")
-#     except NoCredentialsError:
-#         print("Credentials not available.")
-#     except Exception as e:
-#         print(f"Error occurred: {e}")
+def upload_to_s3(file_stream, bucket_name, s3_key, aws_access_key, aws_secret_key, region):
+    try:
+        session = boto3.Session(
+            aws_access_key_id=aws_access_key,
+            aws_secret_access_key=aws_secret_key,
+            region_name=region
+        )
+        s3 = session.client('s3')
+        s3.upload_fileobj(file_stream, bucket_name, s3_key, ExtraArgs={'ContentType': 'image/png'})
+        print(f"Uploaded to S3 at {s3_key}")
+    except NoCredentialsError:
+        print("Credentials not available.")
+    except Exception as e:
+        print(f"Error occurred: {e}")
 
 def log_activity():
     global key_presses, mouse_clicks
@@ -174,8 +177,14 @@ def log_activity():
         key_presses = 0
         mouse_clicks = 0
 
-       # Take and upload screenshot
+# Take and upload screenshot
         screenshot = take_screenshot()
+        buffered = io.BytesIO()
+        screenshot.save(buffered, format="PNG")
+        buffered.seek(0)
+        s3_key = f"{UPLOAD_PATH}screenshot_{current_time.strftime('%Y%m%d_%H%M%S')}.png"
+        upload_to_s3(buffered, BUCKET_NAME, s3_key, AWS_ACCESS_KEY, AWS_SECRET_KEY, S3_REGION)
+
 
         # Schedule GUI updates in the main thread
         root.after(0, display_screenshot, screenshot)
