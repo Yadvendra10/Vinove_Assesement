@@ -76,6 +76,7 @@ def send_otp(to_email, otp):
 
     if not checkInternetUrllib():  # Check if internet is available
         print("No internet connection. Unable to send OTP.")
+        messagebox.showwarning("No internet connection. Unable to send OTP.")
         return
 
     try:
